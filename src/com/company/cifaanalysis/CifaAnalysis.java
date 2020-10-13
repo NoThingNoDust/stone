@@ -1,19 +1,20 @@
 package com.company.cifaanalysis;
 
-import com.sun.tools.javac.util.Log;
 
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CifaAnalysis {
 
-    public Log log;
+    private static Logger log = Logger.getLogger(CifaAnalysis.class.getName());
 
     public int analysis(String filePath) {
         CharBuffer charBuffer = this.fileRead(filePath);
-        log.printLines(charBuffer.toString());
+        log.log(Level.INFO, charBuffer.toString());
         return 0;
     }
 
@@ -56,7 +57,7 @@ public class CifaAnalysis {
         try {
             decoder = getDecoder(encodingName);
         } catch (Exception e) {
-            log.error("unsupported.encoding", encodingName);
+            log.log(Level.FINE, "unsupported.encoding", encodingName);
             return (CharBuffer)CharBuffer.allocate(1).flip();
         }
 

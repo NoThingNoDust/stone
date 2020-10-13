@@ -11,9 +11,8 @@ public class Main {
      *  @param args command line arguments
      */
     public static void main(String[] args) {
-        String filePath = "/Users/liule/Documents/project/hello.java";
         CifaAnalysis cifaAnalysis = new CifaAnalysis();
-        System.exit(cifaAnalysis.analysis(filePath));
+        System.exit(cifaAnalysis.analysis(args[0]));
     }
 
     /** Programmatic interface to the Java Programming Language
