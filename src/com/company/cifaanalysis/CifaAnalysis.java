@@ -13,20 +13,23 @@ public class CifaAnalysis {
     private static Logger log = Logger.getLogger(CifaAnalysis.class.getName());
 
     public int analysis(String filePath) {
-        CharBuffer charBuffer = this.fileRead(filePath);
-        log.log(Level.INFO, charBuffer.toString());
-        return 0;
-    }
-
-
-    public CharBuffer fileRead(String filePath) {
+        //文件阅读器
+        CharBuffer charBuffer;
         try {
-            InputStream in = new FileInputStream(filePath);
-            return this.decode(this.makeByteBuffer(in));
+            charBuffer = this.fileRead(filePath);
+            log.log(Level.INFO, charBuffer.toString());
+            return 0;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        //词法分析器
+        return 1;
+    }
+
+
+    public CharBuffer fileRead(String filePath) throws Exception {
+            InputStream in = new FileInputStream(filePath);
+            return this.decode(this.makeByteBuffer(in));
     }
 
 
