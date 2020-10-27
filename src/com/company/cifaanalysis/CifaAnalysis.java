@@ -1,104 +1,58 @@
 package com.company.cifaanalysis;
 
-
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class CifaAnalysis {
 
-    private static Logger log = Logger.getLogger(CifaAnalysis.class.getName());
+    Set<String> symbolSet;
 
-    public int analysis(String filePath) {
+    public CifaAnalysis() {
+        this.symbolSet = new HashSet<>();
+        symbolSet.add("\"");
+        this.queue = new ArrayList<>();
+    }
+
+
+    ArrayList<Token> queue;
+
+    public int analysis(String filePath) throws ParseException {
+
         //文件阅读器
-        CharBuffer charBuffer;
+        FileReader fileReader;
         try {
-            charBuffer = this.fileRead(filePath);
-            log.log(Level.INFO, charBuffer.toString());
-            return 0;
-        } catch (Exception e) {
-            e.printStackTrace();
+            fileReader = new FileReader(filePath);
+        } catch (FileNotFoundException e) {
+            throw new ParseException("文件读取失败");
         }
-        //词法分析器
+        Lexer lexer = new Lexer(fileReader);
+        do {
+            String read = lexer.read();
+            //词法分析器
+            queue.addAll(this.lexicalAnalysis(read));
+        } while (lexer.hasNext());
         return 1;
     }
 
 
-    public CharBuffer fileRead(String filePath) throws Exception {
-            InputStream in = new FileInputStream(filePath);
-            return this.decode(this.makeByteBuffer(in));
-    }
-
-
-    public ByteBuffer makeByteBuffer(InputStream in)
-            throws IOException {
-        int limit = in.available();
-        if (limit < 1024) limit = 1024;
-        ByteBuffer result = ByteBuffer.allocate(20480 + 20480>>1);
-        int position = 0;
-        while (in.available() != 0) {
-            if (position >= limit)
-                // expand buffer
-                result = ByteBuffer.
-                        allocate(limit <<= 1).
-                        put((ByteBuffer)result.flip());
-            int count = in.read(result.array(),
-                    position,
-                    limit - position);
-            if (count < 0) break;
-            result.position(position += count);
+    private List<Token> lexicalAnalysis(String line) {
+        if (line == null) {
+            return new ArrayList<>();
         }
-        return (ByteBuffer)result.flip();
-    }
+        char[] chars = line.toCharArray();
+        String cache = "";
+        for (int i = 0; i < chars.length; i++) {
+            char aChar = chars[i];
+            if (symbolSet.contains(String.valueOf(aChar))) {
 
-    public CharBuffer decode(ByteBuffer inbuf) {
-        String encodingName = new OutputStreamWriter(new ByteArrayOutputStream()).getEncoding();;
-        CharsetDecoder decoder;
-        try {
-            decoder = getDecoder(encodingName);
-        } catch (Exception e) {
-            log.log(Level.FINE, "unsupported.encoding", encodingName);
-            return (CharBuffer)CharBuffer.allocate(1).flip();
-        }
-
-        float factor = decoder.averageCharsPerByte() * 0.8f + decoder.maxCharsPerByte() * 0.2f;
-        CharBuffer dest = CharBuffer.allocate(10 + (int)(inbuf.remaining()*factor));
-
-        while (true) {
-            CoderResult result = decoder.decode(inbuf, dest, true);
-            dest.flip();
-
-            if (result.isUnderflow()) {
-                if (dest.limit() == dest.capacity()) {
-                    dest = CharBuffer.allocate(dest.capacity()+1).put(dest);
-                    dest.flip();
-                }
-                return dest;
-            } else if (result.isOverflow()) {
-                int newCapacity =
-                        10 + dest.capacity() +
-                                (int)(inbuf.remaining()*decoder.maxCharsPerByte());
-                dest = CharBuffer.allocate(newCapacity).put(dest);
-            } else if (result.isMalformed() || result.isUnmappable()) {
-                inbuf.position(inbuf.position() + result.length());
-                dest.position(dest.limit());
-                dest.limit(dest.capacity());
-                dest.put((char)0xfffd);
-            } else {
-                throw new AssertionError(result);
             }
         }
+
+        return new ArrayList<>();
     }
 
-
-    public CharsetDecoder getDecoder(String encodingName) {
-        Charset cs = Charset.forName(encodingName);
-        CharsetDecoder decoder = cs.newDecoder();
-        CodingErrorAction action = CodingErrorAction.REPORT;
-        return decoder.onMalformedInput(action).onUnmappableCharacter(action);
-    }
 
 }

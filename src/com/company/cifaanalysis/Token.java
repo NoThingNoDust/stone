@@ -3,8 +3,8 @@ package com.company.cifaanalysis;
 import com.sun.tools.javac.util.Name;
 
 public class Token {
-    private final String key;
-    private final String value;
+//    private final String key;
+//    private final String value;
 //
 //    /** The token kind */
 //    public final TokenKind kind = TokenKind.CHARLITERAL;
@@ -22,9 +22,17 @@ public class Token {
 //        checkKind();
 //    }
 
+    public static final Token EOF = new Token(-1){}; // end of file
+    public static final String EOL = "\\n";          // end of line
+    private int lineNumber;
+
+    Token(int line) {
+        lineNumber = line;
+    }
+
     Token(String key, String value) {
-        this.key = key;
-        this.value = value;
+//        this.key = key;
+//        this.value = value;
 
     }
 
@@ -48,13 +56,22 @@ public class Token {
         throw new UnsupportedOperationException();
     }
 
-    public String getValue() {
-        return value;
+//    public String getValue() {
+//        return value;
+//    }
+//
+//    public String getKey() {
+//        return key;
+//    }
+
+    public String getText() {
+        return "xxxxxx";
     }
 
-    public String getKey() {
-        return key;
+    public int getLineNumber() {
+        return 1;
     }
+
 
 //    /**
 //     * Preserve classic semantics - if multiple javadocs are found on the token
